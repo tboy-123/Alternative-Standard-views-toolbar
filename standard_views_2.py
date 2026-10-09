@@ -131,24 +131,34 @@ def _draw_front_icon() -> QIcon:
     painter.drawRect(QRectF(2.9, 15.9, 29.5, 29.5))
     painter.end()
     return QIcon(pm)
+    
 def _draw_back_icon() -> QIcon:
-    """Vector canvas for Back View icon (Perfect 48x48 mapping with 2px padding)."""
+    """Vector canvas for Back View icon (Perfect 48x48 mapping with 2px padding).
+    FIXED: Fills the green background first, so wireframe edges correctly render on top.
+    """
     pm = QPixmap(48, 48)
     pm.fill(Qt.GlobalColor.transparent)
     painter = QPainter(pm)
     painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
-    ink = _get_theme_ink()
     
+    # 1. FIRST: Fill the green solid background face at the back layer
+    painter.setPen(Qt.PenStyle.NoPen)
+    painter.setBrush(QColor("#37B34A"))
+    painter.drawRect(QRectF(15.8, 3.5, 28.9, 28.9))
+    
+    # 2. SECOND: Draw the theme-colored wireframe grid ON TOP of the green face
+    ink = _get_theme_ink()
     painter.setPen(QPen(ink, 2.1, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
     painter.setBrush(Qt.BrushStyle.NoBrush)
+    
     painter.drawPolygon(QPolygonF([QPointF(3.3, 16.1), QPointF(15.8, 3.5), QPointF(15.8, 32.5), QPointF(3.3, 45.0)]))
     painter.drawPolygon(QPolygonF([QPointF(32.2, 16.1), QPointF(44.7, 3.5), QPointF(44.7, 32.5), QPointF(32.2, 45.0)]))
     painter.drawRect(QRectF(3.3, 16.1, 28.9, 28.9))
+    painter.drawRect(QRectF(15.8, 3.5, 28.9, 28.9)) # Restored frame border definition over fill
     
-    painter.setBrush(QColor("#37B34A"))
-    painter.drawRect(QRectF(15.8, 3.5, 28.9, 28.9))
     painter.end()
     return QIcon(pm)
+
 
 def _draw_left_icon() -> QIcon:
     """Vector canvas for Left View icon (Perfect 48x48 mapping with 2px padding)."""
